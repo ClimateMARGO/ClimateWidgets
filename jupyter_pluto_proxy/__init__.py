@@ -1,0 +1,18 @@
+import os
+
+
+def setup_pluto():
+    def _get_pluto_cmd(port):
+        return ["julia", "-e", "\"import Pluto; Pluto.run(\"0.0.0.0\", " + str(port) + ")\""]
+
+    return {
+        "command": _get_pluto_cmd,
+        "timeout": 20,
+        "new_browser_tab": True,
+        "launcher_entry": {
+            "title": "VS Code",
+            "icon_path": os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "icons", "pluto.svg"
+            ),
+        },
+    }
