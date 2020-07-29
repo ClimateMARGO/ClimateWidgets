@@ -3,14 +3,14 @@ import os
 
 def setup_pluto():
     def _get_pluto_cmd(port):
-        return ["julia", "-e", "\"import Pluto; Pluto.run(\"0.0.0.0\", " + str(port) + ")\""]
+        return ["julia", "-e", "\"import Pkg; Pkg.add(Pkg.PackageSpec(;name=\"Pluto\", version=v\"0.11.1\")); import Pluto; Pluto.run(\"0.0.0.0\", " + str(port) + ")\""]
 
     return {
         "command": _get_pluto_cmd,
-        "timeout": 20,
+        "timeout": 60,
         "new_browser_tab": True,
         "launcher_entry": {
-            "title": "VS Code",
+            "title": "Pluto.jl",
             "icon_path": os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "icons", "pluto.svg"
             ),
