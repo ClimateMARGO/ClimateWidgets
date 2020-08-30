@@ -3,7 +3,7 @@ import os
 
 def setup_pluto():
     def _get_pluto_cmd(port):
-        return ["julia", "-e", "import Pkg; Pkg.add(Pkg.PackageSpec(;name=\"Pluto\", rev=\"5cc783e\")); import Pluto; Pluto.run(\"0.0.0.0\", " + str(port) + ")"]
+        return ["julia", "-e", "import Pkg; Pkg.add(Pkg.PackageSpec(;name=\"Pluto\", rev=\"f7ec03d\")); import Pluto; Pluto.run(\"0.0.0.0\", " + str(port) + ")"]
 
     return {
         "command": _get_pluto_cmd,
