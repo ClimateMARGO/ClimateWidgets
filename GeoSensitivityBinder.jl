@@ -170,7 +170,7 @@ end;
 
 # ╔═╡ e021f19e-f6e9-11ea-16fe-7998c8b7ad27
 begin
-	ρslider = @bind ρ Slider(0:0.1:7.5, default=1.);
+	ρslider = @bind ρ Slider(0:0.1:7.5, default=7.5);
 	md"""
 	$(space) $(ρslider) [Range: 0% – 7.5%]
 	"""
@@ -181,7 +181,7 @@ md"""Discount Rate = $(ρ)% """
 
 # ╔═╡ e1284c58-f6eb-11ea-11a8-fb567b481d0c
 begin
-	βslider = @bind β Slider(0.1:0.1:5., default=2.);
+	βslider = @bind β Slider(0.1:0.1:5., default=0.1);
 	md"""
 	$(space) $(βslider) [Range: 0% – 5%]
 	"""
@@ -197,9 +197,9 @@ Cost of climate damages = $(β) % GWP for warming of 3 ºC
 # ╔═╡ 41290136-f76b-11ea-086e-678cfac105dc
 begin
 	if G
-		Gcost_slider = @bind Gcost Slider(0.:0.1:20., default=5.);
+		Gcost_slider = @bind Gcost Slider(0.:0.1:30., default=5.);
 		md"""
-		$(space) $(Gcost_slider) [Range: 0% – 20%]
+		$(space) $(Gcost_slider) [Range: 0% – 30%]
 		"""
 	end
 end
