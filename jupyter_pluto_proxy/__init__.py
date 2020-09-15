@@ -7,7 +7,7 @@ def setup_pluto():
 
     return {
         "command": _get_pluto_cmd,
-        "timeout": 60,
+        "timeout": 120,
         "new_browser_tab": True,
         "launcher_entry": {
             "title": "Pluto.jl",
