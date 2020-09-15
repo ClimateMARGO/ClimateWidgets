@@ -41,9 +41,9 @@ version = "0.5.1"
 
 [[ClimateMARGO]]
 deps = ["Combinatorics", "IJulia", "Ipopt", "JSON2", "JuMP", "PyCall", "PyPlot", "Revise"]
-git-tree-sha1 = "e0c8c093c6667059a12e319327d91a1550b44671"
+git-tree-sha1 = "202f8f6b4d10ec8164ca7a65412acaaba5e23bfa"
 uuid = "d3f62095-a717-45bf-aadc-ac9dfc258fa6"
-version = "0.1.0"
+version = "0.1.1"
 
 [[CodeTracking]]
 deps = ["InteractiveUtils", "UUIDs"]
@@ -531,9 +531,9 @@ version = "1.0.2"
 
 [[Revise]]
 deps = ["CodeTracking", "Distributed", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "Pkg", "REPL", "UUIDs", "Unicode"]
-git-tree-sha1 = "a860e786779be1ab6407d427470e1415711dd459"
+git-tree-sha1 = "d6b380e331f5ace89033617b575cfac40f9b312d"
 uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
-version = "2.7.5"
+version = "2.7.6"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
