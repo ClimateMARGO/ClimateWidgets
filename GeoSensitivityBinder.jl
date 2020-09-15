@@ -20,7 +20,11 @@ begin
 		import Pkg
 		Pkg.activate(env)
 		Pkg.Registry.update()
-		Pkg.add([(;name="PlutoUI"), (;name = "ClimateMARGO"), (;name = "Plots")])
+		Pkg.add([
+			(;name="PlutoUI", version="0.6.1"),
+			(;name = "ClimateMARGO", version="0.1.2"),
+			(;name = "Plots", version="1.6.4")
+		])
 	end
 	using Plots
 	using ClimateMARGO
