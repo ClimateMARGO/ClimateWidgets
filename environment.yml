@@ -2,4 +2,5 @@ channels:
   - conda-forge
 dependencies:
   - numpy
+  - matplotlib
   - jupyter-server-proxy
