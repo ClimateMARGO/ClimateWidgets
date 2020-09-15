@@ -20,9 +20,7 @@ begin
 		import Pkg
 		Pkg.activate(env)
 		Pkg.Registry.update()
-		Pkg.add(Pkg.PackageSpec(;name="PlutoUI", version=v"0.6.1"))
-		Pkg.add(Pkg.PackageSpec(;name="Plots"))
-		Pkg.add(Pkg.PackageSpec(;name="ClimateMARGO"))
+		Pkg.add([(;name="PlutoUI"), (;name = "ClimateMARGO"), (;name = "Plots")])
 	end
 	using Plots
 	using ClimateMARGO
@@ -183,7 +181,7 @@ md"""Discount Rate = $(ρ)% """
 
 # ╔═╡ e1284c58-f6eb-11ea-11a8-fb567b481d0c
 begin
-	βslider = @bind β Slider(0.:0.1:5., default=2.);
+	βslider = @bind β Slider(0.1:0.1:5., default=2.);
 	md"""
 	$(space) $(βslider) [Range: 0% – 5%]
 	"""
@@ -219,7 +217,9 @@ end
 function update_params!(m)
 	m.economics.ρ = float(ρ/100.);
 	m.economics.β = float(β/100. /9.)
-	m.economics.geoeng_cost = float(Gcost/100.)
+	if G
+		m.economics.geoeng_cost = float(Gcost/100.)
+	end
 end;
 
 # ╔═╡ 4a836eee-f77d-11ea-07bf-61bc1108d06e
