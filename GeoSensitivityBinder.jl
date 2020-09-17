@@ -15,17 +15,8 @@ end
 
 # ╔═╡ dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 begin
-	let
-		env = mktempdir()
-		import Pkg
-		Pkg.activate(env)
-		Pkg.Registry.update()
-		Pkg.add([
-			(;name="PlutoUI", version="0.6.1"),
-			(;name = "ClimateMARGO", version="0.1.2"),
-			(;name = "Plots", version="1.6.4")
-		])
-	end
+	import Pkg
+	Pkg.activate(".")
 	using Plots
 	using ClimateMARGO
 	using ClimateMARGO.Models
@@ -279,7 +270,7 @@ let
 end
 
 # ╔═╡ Cell order:
-# ╟─dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
+# ╠═dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 # ╟─7cd92dfa-f6ee-11ea-2a62-5de6dc054afe
 # ╟─f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
 # ╟─20a8c93e-f6ef-11ea-326d-ede483bac48b
