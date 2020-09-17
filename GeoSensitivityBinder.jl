@@ -15,8 +15,17 @@ end
 
 # ╔═╡ dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 begin
-	import Pkg
-	Pkg.activate(".")
+	let
+		env = mktempdir()
+		import Pkg
+		Pkg.activate(env)
+		Pkg.Registry.update()
+		Pkg.add([
+			(;name="PlutoUI", version="0.6.1"),
+			(;name = "ClimateMARGO", version="0.1.2"),
+			(;name = "Plots", version="1.6.4")
+		])
+	end
 	using Plots
 	using ClimateMARGO
 	using ClimateMARGO.Models
@@ -38,7 +47,7 @@ md"""![](https://raw.githubusercontent.com/hdrake/ClimateMARGO.jl/master/docs/sr
 md"""##### Optimization Method"""
 
 # ╔═╡ 2e2cbeb4-f6ef-11ea-14a1-3d12143db520
-@bind obj_option Select(["net_benefit" => "Cost-Benefit", "temp" => "Temperature Goal"])
+@bind obj_option Select(["net_benefit"=>"Cost-Benefit", "temp"=>"Temperature Goal"])
 
 # ╔═╡ 6ad1f3d0-f6ee-11ea-12f8-f752047cbeba
 md"""##### Allowed controls"""
@@ -77,13 +86,13 @@ end;
 md"""### Plotting functions"""
 
 # ╔═╡ 3a643e88-f6ee-11ea-2e27-f52e39bd930a
-default(linewidth=2.5)
+default(linewidth = 2.5)
 
 # ╔═╡ fd18f7d0-f6ed-11ea-2d8a-67901fb687d9
 function plot_temperature(m)
-	temps_plot = plot(t(m), T(m, M=true, R=true, G=true), fillrange=T(m, M=true, R=true), alpha=0.15, color="red", label=nothing);
-	plot!(t(m), T(m, M=true, R=true), fillrange=T(m, M=true), alpha=0.15, color="orange", label=nothing);
-	plot!(t(m), T(m, M=true), fillrange=T(m), alpha=0.15, color="blue", label=nothing);
+	temps_plot = plot(t(m), T(m, M=true, R=true, G=true), fillrange = T(m, M=true, R=true), alpha=0.15, color="red", label=nothing);
+	plot!(t(m), T(m, M=true, R=true), fillrange = T(m, M=true), alpha=0.15, color="orange", label=nothing);
+	plot!(t(m), T(m, M=true), fillrange = T(m), alpha=0.15, color="blue", label=nothing);
 	
 	if G; plot!(t(m), T(m, M=true, R=true, G=true), label="T(M,R,G)", color="red"); end
 	if R; plot!(t(m), T(m, M=true, R=true), label="T(M,R)", color="orange"); end
@@ -93,7 +102,7 @@ function plot_temperature(m)
 		fill_lims = ylims(temps_plot)
 		plot!(
 			[m.domain.initial_year, m.domain.present_year],
-			fill_lims[1] * [1., 1.], fillrange=fill_lims[2] * [1., 1.],
+			fill_lims[1]*[1., 1.], fillrange = fill_lims[2]*[1., 1.],
 			color="gray", alpha=0.1, label="elapsed time"
 		)
 	end
@@ -106,8 +115,8 @@ end;
 
 # ╔═╡ 97507428-f783-11ea-3d77-ef80b23a6c66
 function plot_CO2(m)
-	co2_plot = plot(t(m), c(m, M=true, R=true), fillrange=c(m, M=true), alpha=0.15, color="orange", label=nothing);
-	plot!(t(m), c(m, M=true), fillrange=c(m), alpha=0.15, color="blue", label=nothing);
+	co2_plot = plot(t(m), c(m, M=true, R=true), fillrange = c(m, M=true), alpha=0.15, color="orange", label=nothing);
+	plot!(t(m), c(m, M=true), fillrange = c(m), alpha=0.15, color="blue", label=nothing);
 	
 	if R; plot!(t(m), c(m, M=true, R=true), label="c(M,R)", color="orange"); end
 	if M; plot!(t(m), c(m, M=true), label="c(M)", color="blue"); end
@@ -116,7 +125,7 @@ function plot_CO2(m)
 		fill_lims = ylims(temps_plot)
 		plot!(
 			[m.domain.initial_year, m.domain.present_year],
-			fill_lims[1] * [1., 1.], fillrange=fill_lims[2] * [1., 1.],
+			fill_lims[1]*[1., 1.], fillrange = fill_lims[2]*[1., 1.],
 			color="gray", alpha=0.1, label="elapsed time"
 		)
 	end
@@ -134,7 +143,7 @@ space = html" ";
 
 # ╔═╡ b2815710-f6ef-11ea-0e7d-19c53be305bc
 begin
-	if obj_option == "temp"
+	if obj_option=="temp"
 		temp_slider = @bind temp_goal Slider(1.5:0.1:3., default=2.);
 		md"""
 		$(space) $(temp_slider) [Range: 1.5 ºC – 3 ºC]
@@ -147,7 +156,7 @@ end
 
 # ╔═╡ 7f87ab16-f6ef-11ea-043e-8939edfd0554
 begin
-	if obj_option == "temp"
+	if obj_option=="temp"
 		md"""Temperature Goal = $(temp_goal) ºC"""
 	end
 end
@@ -155,12 +164,12 @@ end
 # ╔═╡ 14fe5804-f6ee-11ea-0971-b747e79dba0e
 function custom_optimize!(m)
 	max_deploy = Dict(
-		"mitigate" => float(M),
-		"remove" => float(R),
-		"geoeng" => float(G),
-		"adapt" => 0.
+		"mitigate"=>float(M),
+		"remove"=>float(R),
+		"geoeng"=>float(G),
+		"adapt"=>0.
 	)
-	optimize_controls!(m, obj_option=obj_option, temp_goal=temp_goal, max_deployment=max_deploy);
+	optimize_controls!(m, obj_option=obj_option, temp_goal = temp_goal, max_deployment=max_deploy);
 end;
 
 # ╔═╡ e021f19e-f6e9-11ea-16fe-7998c8b7ad27
@@ -210,10 +219,10 @@ end
 
 # ╔═╡ e9c8002c-f6ed-11ea-10ae-d3a6ae4b0a13
 function update_params!(m)
-	m.economics.ρ = float(ρ / 100.);
-	m.economics.β = float(β / 100. / 9.)
+	m.economics.ρ = float(ρ/100.);
+	m.economics.β = float(β/100. /9.)
 	if G
-		m.economics.geoeng_cost = float(Gcost / 100.)
+		m.economics.geoeng_cost = float(Gcost/100.)
 	end
 end;
 
@@ -229,19 +238,9 @@ function update_plot!(m)
 	return panel_plot
 end;
 
-# ╔═╡ 501b939a-f75f-11ea-25e1-994d67753d7f
-let
-	UpdateButton = @bind 🔄 Button("Update 🔄")
-	md"""
-	The control panel below can be used to step forward of backward in time (make sure to press the "Update" button to update the plot above!
-	
-	$(space) $(UpdateButton)
-	"""
-end
-
 # ╔═╡ a1f524c6-f77d-11ea-0ff7-b16c47a77192
 let
-	ResetButton = @bind reset Button("Reset ↺")
+	ResetButton = @bind 🔄 Button("Reset 🔄")
 	FFNumberField = @bind Δt NumberField(0:100, default=20)
 	FFButton = @bind ⏩ Button("Fast forward ⏩")
 	RWButton = @bind ⏪ Button("⏪ Rewind")
@@ -250,35 +249,37 @@ let
 	"""
 end
 
-# ╔═╡ 7ce36c32-f777-11ea-10c7-5bd7257cf131
-let
-	🔄
-	⏩
-	⏪
-	reset
-	update_plot!(m)
-end
-
 # ╔═╡ 5358754e-f766-11ea-27c5-b946b2495cfa
 begin
-	reset
+	🔄
+	🔄trigger = nothing
 	m.domain.present_year = m.domain.initial_year
 end;
 
 # ╔═╡ 26d67348-f761-11ea-1acc-8539522de585
 begin
 	⏩
+	⏩trigger = nothing
 	ClimateMARGO.PolicyResponse.step_forward!(m, float(Δt));
 end;
 
 # ╔═╡ 9efee730-f761-11ea-0454-3f86e1a91359
 begin
 	⏪
+	⏪trigger = nothing
 	ClimateMARGO.PolicyResponse.step_forward!(m, float(-Δt));
 end;
 
+# ╔═╡ 7ce36c32-f777-11ea-10c7-5bd7257cf131
+let
+	🔄trigger
+	⏩trigger
+	⏪trigger
+	update_plot!(m)
+end
+
 # ╔═╡ Cell order:
-# ╠═dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
+# ╟─dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 # ╟─7cd92dfa-f6ee-11ea-2a62-5de6dc054afe
 # ╟─f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
 # ╟─20a8c93e-f6ef-11ea-326d-ede483bac48b
@@ -297,7 +298,6 @@ end;
 # ╟─f4ce2bb4-f782-11ea-3d14-29a859a3b5b0
 # ╟─c350e13c-f783-11ea-20c9-850f0b9924c4
 # ╟─7ce36c32-f777-11ea-10c7-5bd7257cf131
-# ╟─501b939a-f75f-11ea-25e1-994d67753d7f
 # ╟─a1f524c6-f77d-11ea-0ff7-b16c47a77192
 # ╟─46e25d84-f6ee-11ea-2f08-af76b3b89fd1
 # ╠═5f58784e-f6ee-11ea-1ca7-9fb8b53cd779
