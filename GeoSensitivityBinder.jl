@@ -238,19 +238,9 @@ function update_plot!(m)
 	return panel_plot
 end;
 
-# ╔═╡ 501b939a-f75f-11ea-25e1-994d67753d7f
-let
-	UpdateButton = @bind 🔄 Button("Update 🔄")
-	md"""
-	The control panel below can be used to step forward of backward in time (make sure to press the "Update" button to update the plot above!
-	
-	$(space) $(UpdateButton)
-	"""
-end
-
 # ╔═╡ a1f524c6-f77d-11ea-0ff7-b16c47a77192
 let
-	ResetButton = @bind reset Button("Reset ↺")
+	ResetButton = @bind 🔄 Button("Reset 🔄")
 	FFNumberField = @bind Δt NumberField(0:100, default=20)
 	FFButton = @bind ⏩ Button("Fast forward ⏩")
 	RWButton = @bind ⏪ Button("⏪ Rewind")
@@ -259,32 +249,34 @@ let
 	"""
 end
 
-# ╔═╡ 7ce36c32-f777-11ea-10c7-5bd7257cf131
-let
-	🔄
-	⏩
-	⏪
-	reset
-	update_plot!(m)
-end
-
 # ╔═╡ 5358754e-f766-11ea-27c5-b946b2495cfa
 begin
-	reset
+	🔄
+	🔄trigger = nothing
 	m.domain.present_year = m.domain.initial_year
 end;
 
 # ╔═╡ 26d67348-f761-11ea-1acc-8539522de585
 begin
 	⏩
+	⏩trigger = nothing
 	ClimateMARGO.PolicyResponse.step_forward!(m, float(Δt));
 end;
 
 # ╔═╡ 9efee730-f761-11ea-0454-3f86e1a91359
 begin
 	⏪
+	⏪trigger = nothing
 	ClimateMARGO.PolicyResponse.step_forward!(m, float(-Δt));
 end;
+
+# ╔═╡ 7ce36c32-f777-11ea-10c7-5bd7257cf131
+let
+	🔄trigger
+	⏩trigger
+	⏪trigger
+	update_plot!(m)
+end
 
 # ╔═╡ Cell order:
 # ╟─dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
@@ -306,7 +298,6 @@ end;
 # ╟─f4ce2bb4-f782-11ea-3d14-29a859a3b5b0
 # ╟─c350e13c-f783-11ea-20c9-850f0b9924c4
 # ╟─7ce36c32-f777-11ea-10c7-5bd7257cf131
-# ╟─501b939a-f75f-11ea-25e1-994d67753d7f
 # ╟─a1f524c6-f77d-11ea-0ff7-b16c47a77192
 # ╟─46e25d84-f6ee-11ea-2f08-af76b3b89fd1
 # ╠═5f58784e-f6ee-11ea-1ca7-9fb8b53cd779
