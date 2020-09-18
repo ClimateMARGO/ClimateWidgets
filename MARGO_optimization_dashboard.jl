@@ -13,30 +13,18 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ c61ff532-f75e-11ea-2adb-8568ca8aba29
+# ╔═╡ dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 begin
+	import Pkg
+	Pkg.activate(".")
+	using Plots
 	using ClimateMARGO
 	using ClimateMARGO.Models
 	using ClimateMARGO.Optimization
 	using ClimateMARGO.Diagnostics
-end;
-
-# ╔═╡ dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
-begin
-	let
-		env = mktempdir()
-		import Pkg
-		Pkg.activate(env)
-		Pkg.Registry.update()
-		Pkg.add(Pkg.PackageSpec(;name="PlutoUI", version=v"0.6.1"))
-		Pkg.add(Pkg.PackageSpec(;name="LaTeXStrings"))
-	end
 	using PlutoUI
-	using LaTeXStrings
+	plotly();
 end;
-
-# ╔═╡ 99669080-f76a-11ea-16dd-0794ef1ade83
-using Plots;
 
 # ╔═╡ 7cd92dfa-f6ee-11ea-2a62-5de6dc054afe
 md"""
@@ -141,9 +129,6 @@ end;
 # ╔═╡ 8179f4ec-f75d-11ea-26eb-2b9b9267f7b0
 md"""Pluto magic below"""
 
-# ╔═╡ 9e053768-f76a-11ea-0a5d-2dc6e51584ed
-plotly();
-
 # ╔═╡ e59f9724-f6e8-11ea-2ce8-9714ac41b32c
 space = html" ";
 
@@ -180,7 +165,7 @@ end;
 
 # ╔═╡ e021f19e-f6e9-11ea-16fe-7998c8b7ad27
 begin
-	ρslider = @bind ρ Slider(0:0.1:7.5, default=1.);
+	ρslider = @bind ρ Slider(0:0.1:7.5, default=7.5);
 	md"""
 	$(space) $(ρslider) [Range: 0% – 7.5%]
 	"""
@@ -191,7 +176,7 @@ md"""Discount Rate = $(ρ)% """
 
 # ╔═╡ e1284c58-f6eb-11ea-11a8-fb567b481d0c
 begin
-	βslider = @bind β Slider(0.:0.1:5., default=2.);
+	βslider = @bind β Slider(0.1:0.1:5., default=0.1);
 	md"""
 	$(space) $(βslider) [Range: 0% – 5%]
 	"""
@@ -207,9 +192,9 @@ Cost of climate damages = $(β) % GWP for warming of 3 ºC
 # ╔═╡ 41290136-f76b-11ea-086e-678cfac105dc
 begin
 	if G
-		Gcost_slider = @bind Gcost Slider(0.:0.1:20., default=5.);
+		Gcost_slider = @bind Gcost Slider(0.:0.1:30., default=5.);
 		md"""
-		$(space) $(Gcost_slider) [Range: 0% – 20%]
+		$(space) $(Gcost_slider) [Range: 0% – 30%]
 		"""
 	end
 end
@@ -227,7 +212,9 @@ end
 function update_params!(m)
 	m.economics.ρ = float(ρ/100.);
 	m.economics.β = float(β/100. /9.)
-	m.economics.geoeng_cost = float(Gcost/100.)
+	if G
+		m.economics.geoeng_cost = float(Gcost/100.)
+	end
 end;
 
 # ╔═╡ 4a836eee-f77d-11ea-07bf-61bc1108d06e
@@ -242,19 +229,9 @@ function update_plot!(m)
 	return panel_plot
 end;
 
-# ╔═╡ 501b939a-f75f-11ea-25e1-994d67753d7f
-let
-	UpdateButton = @bind 🔄 Button("Update 🔄")
-	md"""
-	The control panel below can be used to step forward of backward in time (make sure to press the "Update" button to update the plot above!
-	
-	$(space) $(UpdateButton)
-	"""
-end
-
 # ╔═╡ a1f524c6-f77d-11ea-0ff7-b16c47a77192
 let
-	ResetButton = @bind reset Button("Reset ↺")
+	ResetButton = @bind 🔄 Button("Reset 🔄")
 	FFNumberField = @bind Δt NumberField(0:100, default=20)
 	FFButton = @bind ⏩ Button("Fast forward ⏩")
 	RWButton = @bind ⏪ Button("⏪ Rewind")
@@ -263,37 +240,39 @@ let
 	"""
 end
 
-# ╔═╡ 7ce36c32-f777-11ea-10c7-5bd7257cf131
-let
-	🔄
-	⏩
-	⏪
-	reset
-	update_plot!(m)
-end
-
 # ╔═╡ 5358754e-f766-11ea-27c5-b946b2495cfa
 begin
-	reset
+	🔄
+	🔄trigger = nothing
 	m.domain.present_year = m.domain.initial_year
 end;
 
 # ╔═╡ 26d67348-f761-11ea-1acc-8539522de585
 begin
 	⏩
+	⏩trigger = nothing
 	ClimateMARGO.PolicyResponse.step_forward!(m, float(Δt));
 end;
 
 # ╔═╡ 9efee730-f761-11ea-0454-3f86e1a91359
 begin
 	⏪
+	⏪trigger = nothing
 	ClimateMARGO.PolicyResponse.step_forward!(m, float(-Δt));
 end;
 
+# ╔═╡ 7ce36c32-f777-11ea-10c7-5bd7257cf131
+let
+	🔄trigger
+	⏩trigger
+	⏪trigger
+	update_plot!(m)
+end
+
 # ╔═╡ Cell order:
+# ╠═dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 # ╟─7cd92dfa-f6ee-11ea-2a62-5de6dc054afe
 # ╟─f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
-# ╠═c61ff532-f75e-11ea-2adb-8568ca8aba29
 # ╟─20a8c93e-f6ef-11ea-326d-ede483bac48b
 # ╟─2e2cbeb4-f6ef-11ea-14a1-3d12143db520
 # ╟─7f87ab16-f6ef-11ea-043e-8939edfd0554
@@ -310,7 +289,6 @@ end;
 # ╟─f4ce2bb4-f782-11ea-3d14-29a859a3b5b0
 # ╟─c350e13c-f783-11ea-20c9-850f0b9924c4
 # ╟─7ce36c32-f777-11ea-10c7-5bd7257cf131
-# ╟─501b939a-f75f-11ea-25e1-994d67753d7f
 # ╟─a1f524c6-f77d-11ea-0ff7-b16c47a77192
 # ╟─46e25d84-f6ee-11ea-2f08-af76b3b89fd1
 # ╠═5f58784e-f6ee-11ea-1ca7-9fb8b53cd779
@@ -325,7 +303,4 @@ end;
 # ╠═97507428-f783-11ea-3d77-ef80b23a6c66
 # ╠═e9c8002c-f6ed-11ea-10ae-d3a6ae4b0a13
 # ╟─8179f4ec-f75d-11ea-26eb-2b9b9267f7b0
-# ╠═dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
-# ╠═99669080-f76a-11ea-16dd-0794ef1ade83
-# ╠═9e053768-f76a-11ea-0a5d-2dc6e51584ed
 # ╠═e59f9724-f6e8-11ea-2ce8-9714ac41b32c
