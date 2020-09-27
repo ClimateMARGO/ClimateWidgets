@@ -35,15 +35,6 @@ md"""
 # ╔═╡ f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
 md"""![](https://raw.githubusercontent.com/hdrake/ClimateMARGO.jl/master/docs/src/MARGO_schematic.png)"""
 
-# ╔═╡ 20a8c93e-f6ef-11ea-326d-ede483bac48b
-md"""##### Optimization Method"""
-
-# ╔═╡ 6ad1f3d0-f6ee-11ea-12f8-f752047cbeba
-md"""##### Allowed controls"""
-
-# ╔═╡ 22434c36-f6ec-11ea-1932-09049deed9c1
-md"""##### Set parameter values"""
-
 # ╔═╡ f4ce2bb4-f782-11ea-3d14-29a859a3b5b0
 md"""#### Interactive plot of climate trajectories and the effects of climate intervention policies
 
@@ -66,13 +57,10 @@ The drop down menu lets you switch between viewing the 1) controls, 2) CO₂ emi
 
 # ╔═╡ 4dfdbcdc-004c-11eb-16d2-3dd3c1f7c4c4
 md"""
-The net present benefits (relative to a no-policy baseline) are shown in the top left corner of the "Controls" view. For what settings of the controls are you able to maximize net benefits?
+The net present benefits (relative to a no-policy baseline) are shown in the top left corner of the "Controls" view and represent the value over all time. For what settings of the controls are you able to maximize net present benefits?
 
 Once you are happy with your policies, reveal the "optimal" solution using the drop-down menu!
 """
-
-# ╔═╡ 59af3e1c-f9b1-11ea-3636-f120ef02e6bd
-md"""##### Other parameters"""
 
 # ╔═╡ 968be15e-0049-11eb-2449-3df90fd001a7
 function gauss(h, t, t0; w=50.)
@@ -200,7 +188,7 @@ function Iplot_emissions()
 end;
 
 # ╔═╡ bc328530-f9ac-11ea-3f7a-8b8cc013c856
-function Iplot_benefits(discounting=false)
+function Iplot_benefits(; discounting=false)
 	benefit_plot = plot(t(m), -cost(m, discounting=discounting, M=M, R=R, G=G, A=A), label="Economic losses from control policies", color="red");
 	plot!(t(m), benefit(m, discounting=discounting, M=M, R=R, G=G, A=A), label="Damages avoided due to control policies", color="blue");
 	plot!(t(m), net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A), label="Net benefits of control policies", color="black")
@@ -230,21 +218,6 @@ md"""Pluto magic below"""
 # ╔═╡ e59f9724-f6e8-11ea-2ce8-9714ac41b32c
 space = html" ";
 
-# ╔═╡ e1284c58-f6eb-11ea-11a8-fb567b481d0c
-begin
-	βslider = @bind β Slider(0.2:0.2:10., default=3.);
-	md"""
-	$(space) $(βslider) [Range: 0% – 10%]
-	"""
-end
-		
-
-# ╔═╡ 754b6738-f6ec-11ea-3b67-cdb4cdd49026
-
-md"""
-Cost of climate damages = $(β) % GWP for warming of 3 ºC
-"""
-
 # ╔═╡ edd01696-0048-11eb-1e9a-5b3f2e079b2b
 begin
 	t_M_slider = @bind t_M Slider(2020:5:2200, default=2100.);
@@ -271,7 +244,7 @@ function custom_user!(m)
 		mopt.controls.mitigate/Mmax,
 		Gridded(Linear())
 	), 0.)
-	Rmax, Ri = findmax(copy(mopt.controls.mitigate))
+	Rmax, Ri = findmax(copy(mopt.controls.remove))
 	Ritp = extrapolate(interpolate(
 		(collect(t(mopt)) .- t(mopt)[Ri],),
 		mopt.controls.remove/Rmax,
@@ -308,6 +281,21 @@ function Iplot_controls()
 	return control_plot
 end;
 
+
+# ╔═╡ a21198e4-005f-11eb-1263-c52cca974dfd
+begin
+	βslider = @bind β Slider(0.2:0.2:10., default=3.);
+	md"""
+	$(space) $(βslider) [Range: 0% – 10%]
+	"""
+end
+		
+
+# ╔═╡ 94e7c94a-005f-11eb-0234-31c8ad724602
+md"""
+##### Modify parameter values
+Cost of climate damages = $(β) % GWP for warming of 3 ºC
+"""
 
 # ╔═╡ 9caa5db6-f9b1-11ea-1916-df297297d41e
 begin
@@ -369,23 +357,19 @@ begin
 end
 
 # ╔═╡ Cell order:
-# ╠═dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
+# ╟─dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 # ╟─7cd92dfa-f6ee-11ea-2a62-5de6dc054afe
 # ╟─f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
-# ╟─20a8c93e-f6ef-11ea-326d-ede483bac48b
-# ╟─6ad1f3d0-f6ee-11ea-12f8-f752047cbeba
-# ╟─22434c36-f6ec-11ea-1932-09049deed9c1
-# ╟─754b6738-f6ec-11ea-3b67-cdb4cdd49026
-# ╟─e1284c58-f6eb-11ea-11a8-fb567b481d0c
 # ╟─f4ce2bb4-f782-11ea-3d14-29a859a3b5b0
 # ╟─c350e13c-f783-11ea-20c9-850f0b9924c4
 # ╟─edd01696-0048-11eb-1e9a-5b3f2e079b2b
 # ╟─7ce36c32-f777-11ea-10c7-5bd7257cf131
 # ╟─4dfdbcdc-004c-11eb-16d2-3dd3c1f7c4c4
 # ╟─485a0f10-004c-11eb-0c6f-ebffd6fe21a3
-# ╟─59af3e1c-f9b1-11ea-3636-f120ef02e6bd
+# ╟─94e7c94a-005f-11eb-0234-31c8ad724602
+# ╟─a21198e4-005f-11eb-1263-c52cca974dfd
 # ╟─77a3fcaa-f9b1-11ea-1a1e-5d4fc30691ae
-# ╠═9caa5db6-f9b1-11ea-1916-df297297d41e
+# ╟─9caa5db6-f9b1-11ea-1916-df297297d41e
 # ╟─a21b07a8-f9b1-11ea-394a-e58c37684104
 # ╟─11e7a3e8-f9b2-11ea-083c-65c28fe60aa1
 # ╟─968be15e-0049-11eb-2449-3df90fd001a7
