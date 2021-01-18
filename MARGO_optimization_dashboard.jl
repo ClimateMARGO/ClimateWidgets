@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -31,13 +31,13 @@ md"""
 """
 
 # ╔═╡ f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
-md"""![](https://raw.githubusercontent.com/hdrake/ClimateMARGO.jl/master/docs/src/MARGO_schematic.png)"""
+md"""![](https://raw.githubusercontent.com/ClimateMARGO/ClimateMARGO.jl/master/docs/src/MARGO_schematic.png)"""
 
 # ╔═╡ 20a8c93e-f6ef-11ea-326d-ede483bac48b
 md"""##### Optimization Method"""
 
 # ╔═╡ 2e2cbeb4-f6ef-11ea-14a1-3d12143db520
-@bind obj_option Select(["net_benefit"=>"Cost-Benefit", "temp"=>"Temperature Goal"])
+@bind obj_option Select(["net_benefit"=>"Cost-Benefit", "adaptive_temp"=>"Temperature Goal"])
 
 # ╔═╡ 6ad1f3d0-f6ee-11ea-12f8-f752047cbeba
 md"""##### Allowed controls"""
@@ -198,7 +198,7 @@ space = html" ";
 
 # ╔═╡ b2815710-f6ef-11ea-0e7d-19c53be305bc
 begin
-	if obj_option=="temp"
+	if obj_option=="adaptive_temp"
 		temp_slider = @bind temp_goal Slider(1.5:0.1:3., default=2.);
 		md"""
 		$(space) $(temp_slider) [Range: 1.5 ºC – 3 ºC]
@@ -211,7 +211,7 @@ end
 
 # ╔═╡ 7f87ab16-f6ef-11ea-043e-8939edfd0554
 begin
-	if obj_option=="temp"
+	if obj_option=="adaptive_temp"
 		md"""Temperature Goal = $(temp_goal) ºC"""
 	end
 end
@@ -256,9 +256,9 @@ md"""Discount Rate = $(ρ)% """
 # ╔═╡ 11e7a3e8-f9b2-11ea-083c-65c28fe60aa1
 begin
 	if M
-		Mcost_slider = @bind Mcost Slider(0.:1:100., default=35);
+		Mcost_slider = @bind Mcost Slider(0.:1:200., default=70);
 		md"""
-		$(space) $(Mcost_slider) [Range: 0 USD – 100 USD]
+		$(space) $(Mcost_slider) [Range: 0 USD – 200 USD]
 		"""
 	end
 end
@@ -267,7 +267,26 @@ end
 begin
 	if M
 		md"""
-		Cost of emissions mitigation (at 100%) = $(Mcost) USD per ton of CO₂
+		Marginal cost of emissions mitigation (at 100%) = $(Mcost) USD per ton of CO₂
+		"""
+	end
+end
+
+# ╔═╡ 61ead2de-592d-11eb-06de-f978f23c1eac
+begin
+	if R
+		Rcost_slider = @bind Rcost Slider(0.:1:700., default=700);
+		md"""
+		$(space) $(Rcost_slider) [Range: 0 USD – 700 USD]
+		"""
+	end
+end
+
+# ╔═╡ 503cde1c-592d-11eb-3248-c335b71693eb
+begin
+	if R
+		md"""
+		Marginal cost of carbon dioxide removal (at 100%) = $(Rcost) USD per ton of CO₂
 		"""
 	end
 end
@@ -297,6 +316,11 @@ function update_params!(m)
 	m.economics.β = float(β/100. /9.)
 	if G
 		m.economics.geoeng_cost = float(Gcost/100.)
+	end
+	if R
+		m.economics.remove_cost = float(
+			(Rcost*ClimateMARGO.Utils.ppm_to_tCO2(emissions(m))[1]/1e12)/2.
+		)
 	end
 	if M
 		m.economics.mitigate_cost = float(Mcost*1.e9/1.e12)
@@ -382,6 +406,8 @@ end
 # ╟─9caa5db6-f9b1-11ea-1916-df297297d41e
 # ╟─a21b07a8-f9b1-11ea-394a-e58c37684104
 # ╟─11e7a3e8-f9b2-11ea-083c-65c28fe60aa1
+# ╟─503cde1c-592d-11eb-3248-c335b71693eb
+# ╟─61ead2de-592d-11eb-06de-f978f23c1eac
 # ╟─739be53c-f9b1-11ea-249f-6bdd08a2c521
 # ╟─5939d712-f9b1-11ea-2634-13c74b486efc
 # ╟─eb837be2-f9b0-11ea-08fa-a3d5e08a7cd2
