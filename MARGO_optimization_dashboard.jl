@@ -16,7 +16,9 @@ end
 # ╔═╡ dc3ef642-f75e-11ea-0e95-e1c64a6fdbf2
 begin
 	import Pkg
+	ENV["JULIA_MARGO_LOAD_PYPLOT"] = "no thank you"
 	Pkg.activate(".")
+	Pkg.instantiate()
 	using Plots
 	using ClimateMARGO
 	using ClimateMARGO.Models
