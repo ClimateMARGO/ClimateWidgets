@@ -17,6 +17,7 @@ jobs:
             - name: Run Pluto notebooks
               run: julia -e 'import Pkg;
                   Pkg.activate(".");
+                  Pkg.instantiate();
                   import PlutoUtils;
 
                   PlutoUtils.Export.github_action(; export_dir=".", offer_binder=true, binder_url="https://mybinder.org/build/gh/ClimateMARGO/ClimateWidgets/master");'
