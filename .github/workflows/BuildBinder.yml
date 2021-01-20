@@ -1,23 +1,23 @@
 name: Build Binder
 
 on:
-  push:
-    branches: [ master ]
-  workflow_dispatch:
+    push:
+        branches: [master]
+    workflow_dispatch:
 
 jobs:
-  build-binder:
-    runs-on: ubuntu-latest
+    build-binder:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
+        steps:
+            - uses: actions/checkout@v2
 
-      - name: Binder build with log to file
-        run: wget -q -O /dev/stdout --timeout=1800 https://mybinder.org/build/gh/ClimateMARGO/ClimateWidgets/master | tee output.txt
+            - name: Binder build with log to file
+              run: wget -q -O /dev/stdout --timeout=1800 https://gke.mybinder.org/build/gh/ClimateMARGO/ClimateWidgets/master | tee output.txt
 
-      - name: Upload log file
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: Build log
-          path: output.txt
+            - name: Upload log file
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v2
+              with:
+                  name: Build log
+                  path: output.txt

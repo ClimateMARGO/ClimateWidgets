@@ -20,7 +20,7 @@ jobs:
                   Pkg.instantiate();
                   import PlutoUtils;
 
-                  PlutoUtils.Export.github_action(; export_dir=".", offer_binder=true, binder_url="https://mybinder.org/build/gh/ClimateMARGO/ClimateWidgets/master");'
+                  PlutoUtils.Export.github_action(; export_dir=".", offer_binder=true, binder_url="https://gke.mybinder.org/build/gh/ClimateMARGO/ClimateWidgets/master", bind_server_url="https://climatewidgets.herokuapp.com/");'
             - name: Deploy to gh-pages
               uses: JamesIves/github-pages-deploy-action@releases/v3
               with:
