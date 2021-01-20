@@ -1,0 +1,23 @@
+name: Build Binder
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-binder:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a one-line script
+        run: echo "Hello, world!" > output.txt
+
+      - name: Upload output
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build log
+          path: output.txt
