@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -46,9 +46,9 @@ md"""##### Allowed controls"""
 
 # ╔═╡ 284638c6-f6e6-11ea-227f-efddfc053eba
 begin
-	Mslider = @bind M CheckBox(default=false)
-	Rslider = @bind R CheckBox(default=false)
-	Gslider = @bind G CheckBox(default=false)
+	Mslider = @bind M_enabled CheckBox(default=false)
+	Rslider = @bind R_enabled CheckBox(default=false)
+	Gslider = @bind G_enabled CheckBox(default=false)
 	md"""
 	`Mitigation ` $(Mslider); 
 	`Removal ` $(Rslider); 
@@ -88,6 +88,20 @@ begin
 	m = ClimateModel(params);
 end;
 
+# ╔═╡ 5a0750e0-0d12-4b4a-81e4-4605323f055a
+Base.@kwdef mutable struct MRGA{T}
+	M::T
+	R::T
+	G::T
+	A::T
+end
+
+# ╔═╡ 8380e66b-495a-4e90-b3fe-04f2baa58a01
+splat(mrga::MRGA) = [:M => mrga.M, :R => mrga.R, :G => mrga.G, :A => mrga.A]
+
+# ╔═╡ 1c8521d2-f9ac-11ea-09d4-b122b4a01b4e
+net_emissions(m; M=false, R=false) = effective_emissions(m; M=M, R=R)/m.physics.r;
+
 # ╔═╡ 04b09746-f6ee-11ea-1cf7-67bab932507e
 md"""### Plotting functions"""
 
@@ -95,14 +109,14 @@ md"""### Plotting functions"""
 default(linewidth = 2.5)
 
 # ╔═╡ fd18f7d0-f6ed-11ea-2d8a-67901fb687d9
-function Iplot_temperature(m)
+function Iplot_temperature(m; enabled::MRGA{Bool})
 	temps_plot = plot(t(m), T(m, M=true, R=true, G=true), fillrange = T(m, M=true, R=true), alpha=0.15, color="red", label=nothing);
 	plot!(t(m), T(m, M=true, R=true), fillrange = T(m, M=true), alpha=0.15, color="orange", label=nothing);
 	plot!(t(m), T(m, M=true), fillrange = T(m), alpha=0.15, color="blue", label=nothing);
 	
-	if G; plot!(t(m), T(m, M=true, R=true, G=true), label="T(M,R,G)", color="red"); end
-	if R; plot!(t(m), T(m, M=true, R=true), label="T(M,R)", color="orange"); end
-	if M; plot!(t(m), T(m, M=true), label="T(M)", color="blue"); end
+	if enabled.G; plot!(t(m), T(m, M=true, R=true, G=true), label="T(M,R,G)", color="red"); end
+	if enabled.R; plot!(t(m), T(m, M=true, R=true), label="T(M,R)", color="orange"); end
+	if enabled.M; plot!(t(m), T(m, M=true), label="T(M)", color="blue"); end
 	plot!(t(m), T(m), label="T", color="black")
 	if m.domain.present_year > m.domain.initial_year
 		fill_lims = ylims(temps_plot)
@@ -120,12 +134,12 @@ function Iplot_temperature(m)
 end;
 
 # ╔═╡ 97507428-f783-11ea-3d77-ef80b23a6c66
-function Iplot_CO2(m)
+function Iplot_CO2(m; enabled::MRGA{Bool})
 	co2_plot = plot(t(m), c(m, M=true, R=true), fillrange = c(m, M=true), alpha=0.15, color="orange", label=nothing);
 	plot!(t(m), c(m, M=true), fillrange = c(m), alpha=0.15, color="blue", label=nothing);
 	
-	if R; plot!(t(m), c(m, M=true, R=true), label="c(M,R)", color="orange"); end
-	if M; plot!(t(m), c(m, M=true), label="c(M)", color="blue"); end
+	if enabled.R; plot!(t(m), c(m, M=true, R=true), label="c(M,R)", color="orange"); end
+	if enabled.M; plot!(t(m), c(m, M=true), label="c(M)", color="blue"); end
 	plot!(t(m), c(m), label="c", color="black")
 	if m.domain.present_year > m.domain.initial_year
 		fill_lims = ylims(co2_plot)
@@ -141,16 +155,13 @@ function Iplot_CO2(m)
 	return co2_plot
 end;
 
-# ╔═╡ 1c8521d2-f9ac-11ea-09d4-b122b4a01b4e
-net_emissions(m; M=false, R=false) = effective_emissions(m; M=M, R=R)/m.physics.r;
-
 # ╔═╡ c93f4636-f9ab-11ea-28e2-8db61df34751
-function Iplot_emissions(m)
+function Iplot_emissions(m; enabled::MRGA{Bool})
 	emit_plot = plot(t(m), net_emissions(m, M=true, R=true), fillrange = net_emissions(m, M=true), alpha=0.15, color="orange", label=nothing);
 	plot!(t(m), net_emissions(m, M=true), fillrange = net_emissions(m), alpha=0.15, color="blue", label=nothing);
 	
-	if R; plot!(t(m), net_emissions(m, M=true, R=true), label="Emissions(M,R)", color="orange"); end
-	if M; plot!(t(m), net_emissions(m, M=true), label="Emissions(M)", color="blue"); end
+	if enabled.R; plot!(t(m), net_emissions(m, M=true, R=true), label="Emissions(M,R)", color="orange"); end
+	if enabled.M; plot!(t(m), net_emissions(m, M=true), label="Emissions(M)", color="blue"); end
 	plot!(t(m), net_emissions(m), label="Emissions", color="black")
 	if m.domain.present_year > m.domain.initial_year
 		fill_lims = ylims(emit_plot)
@@ -167,16 +178,16 @@ function Iplot_emissions(m)
 end;
 
 # ╔═╡ bc328530-f9ac-11ea-3f7a-8b8cc013c856
-function Iplot_benefits(m; discounting=false)
+function Iplot_benefits(m; enabled::MRGA{Bool}, discounting=false)
 	A=false
-	benefit_plot = plot(t(m), -cost(m, discounting=discounting, M=M, R=R, G=G, A=A), label="Economic losses from control policies", color="red");
-	plot!(t(m), benefit(m, discounting=discounting, M=M, R=R, G=G, A=A), label="Damages avoided due to control policies", color="blue");
-	plot!(t(m), net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A), label="Net benefits of control policies", color="black")
+	benefit_plot = plot(t(m), -cost(m; discounting=discounting, splat(enabled)...), label="Economic losses from control policies", color="red");
+	plot!(t(m), benefit(m; discounting=discounting, splat(enabled)...), label="Damages avoided due to control policies", color="blue");
+	plot!(t(m), net_benefit(m; discounting=discounting, splat(enabled)...), label="Net benefits of control policies", color="black")
 	
 	if discounting
-		plot!(t(m), 0. .* net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A), fillrange = net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A), alpha=0.12, color="black", label="Area = Net Present Benefits");
+		plot!(t(m), 0. .* net_benefit(m; discounting=discounting, splat(enabled)...), fillrange = net_benefit(m, discounting=discounting, splat(enabled)...), alpha=0.12, color="black", label="Area = Net Present Benefits");
 	end
-	max_cost = maximum(cost(m, discounting=discounting, M=M, R=R, G=G, A=A))*1.3
+	max_cost = maximum(cost(m; discounting=discounting, splat(enabled)...))*1.3
 	plot!(ylims=(-max_cost,max_cost*5.))
 	if m.domain.present_year > m.domain.initial_year
 		fill_lims = ylims(benefit_plot)
@@ -219,11 +230,11 @@ begin
 end
 
 # ╔═╡ 14fe5804-f6ee-11ea-0971-b747e79dba0e
-function custom_optimize!(m)
+function custom_optimize!(m; enabled::MRGA{Bool})
 	max_deploy = Dict(
-		"mitigate"=>float(M),
-		"remove"=>float(R),
-		"geoeng"=>float(G),
+		"mitigate"=>float(enabled.M),
+		"remove"=>float(enabled.R),
+		"geoeng"=>float(enabled.G),
 		"adapt"=>0.
 	)
 	optimize_controls!(m, obj_option=obj_option, temp_goal = temp_goal, max_deployment=max_deploy);
@@ -255,10 +266,45 @@ end
 # ╔═╡ 77a3fcaa-f9b1-11ea-1a1e-5d4fc30691ae
 md"""Discount Rate = $(ρ)% """
 
+# ╔═╡ e9c8002c-f6ed-11ea-10ae-d3a6ae4b0a13
+function update_params!(m; enabled::MRGA{Bool}, cost::MRGA{<:Real})
+	m.economics.ρ = float(ρ/100.);
+	m.economics.β = float(β/100. /9.)
+	if enabled.G
+		m.economics.geoeng_cost = float(cost.G/100.)
+	end
+	if enabled.R
+		m.economics.remove_cost = float(
+			(cost.R*ClimateMARGO.Utils.ppm_to_tCO2(emissions(m))[1]/1e12)/2.
+		)
+	end
+	if enabled.M
+		m.economics.mitigate_cost = float(cost.M*1.e9/1.e12)
+	end
+end;
+
+# ╔═╡ 4a836eee-f77d-11ea-07bf-61bc1108d06e
+function update_plot!(m; enabled::MRGA{Bool}, cost::MRGA{Float64})
+	update_params!(m; enabled=enabled, cost=cost);
+	custom_optimize!(m; enabled=enabled);
+	if panel == "temp"
+		panel_plot = Iplot_temperature(m; enabled=enabled);
+	elseif panel == "co2"
+		panel_plot = Iplot_CO2(m; enabled=enabled);
+	elseif panel == "emit"
+		panel_plot = Iplot_emissions(m; enabled=enabled);
+	elseif panel == "benefits"
+		panel_plot = Iplot_benefits(m; enabled=enabled);
+	elseif panel == "discounted_benefits"
+		panel_plot = Iplot_benefits(m, discounting=true, enabled=enabled);
+	end
+	return panel_plot
+end;
+
 # ╔═╡ 11e7a3e8-f9b2-11ea-083c-65c28fe60aa1
 begin
-	if M
-		Mcost_slider = @bind Mcost Slider(0.:1:200., default=70);
+	Mcost_slider = @bind M_cost Slider(0.:1:200., default=70);
+	if M_enabled
 		md"""
 		$(space) $(Mcost_slider) [Range: 0 USD – 200 USD]
 		"""
@@ -267,17 +313,17 @@ end
 
 # ╔═╡ a21b07a8-f9b1-11ea-394a-e58c37684104
 begin
-	if M
+	if M_enabled
 		md"""
-		Marginal cost of emissions mitigation (at 100%) = $(Mcost) USD per ton of CO₂
+		Marginal cost of emissions mitigation (at 100%) = $(M_cost) USD per ton of CO₂
 		"""
 	end
 end
 
 # ╔═╡ 61ead2de-592d-11eb-06de-f978f23c1eac
 begin
-	if R
-		Rcost_slider = @bind Rcost Slider(0.:1:700., default=700);
+	Rcost_slider = @bind R_cost Slider(0.:1:700., default=700);
+	if R_enabled
 		md"""
 		$(space) $(Rcost_slider) [Range: 0 USD – 700 USD]
 		"""
@@ -286,17 +332,17 @@ end
 
 # ╔═╡ 503cde1c-592d-11eb-3248-c335b71693eb
 begin
-	if R
+	if R_enabled
 		md"""
-		Marginal cost of carbon dioxide removal (at 100%) = $(Rcost) USD per ton of CO₂
+		Marginal cost of carbon dioxide removal (at 100%) = $(R_cost) USD per ton of CO₂
 		"""
 	end
 end
 
 # ╔═╡ 5939d712-f9b1-11ea-2634-13c74b486efc
 begin
-	if G
-		Gcost_slider = @bind Gcost Slider(0.:0.5:30., default=30.);
+	Gcost_slider = @bind G_cost Slider(0.:0.5:30., default=30.);
+	if G_enabled
 		md"""
 		$(space) $(Gcost_slider) [Range: 0% – 30%]
 		"""
@@ -305,47 +351,12 @@ end
 
 # ╔═╡ 739be53c-f9b1-11ea-249f-6bdd08a2c521
 begin
-	if G
+	if G_enabled
 		md"""
-		Cost of solar geoengineering = $(Gcost) % GWP for cooling of 8.5 W/m²
+		Cost of solar geoengineering = $(G_cost) % GWP for cooling of 8.5 W/m²
 		"""
 	end
 end
-
-# ╔═╡ e9c8002c-f6ed-11ea-10ae-d3a6ae4b0a13
-function update_params!(m)
-	m.economics.ρ = float(ρ/100.);
-	m.economics.β = float(β/100. /9.)
-	if G
-		m.economics.geoeng_cost = float(Gcost/100.)
-	end
-	if R
-		m.economics.remove_cost = float(
-			(Rcost*ClimateMARGO.Utils.ppm_to_tCO2(emissions(m))[1]/1e12)/2.
-		)
-	end
-	if M
-		m.economics.mitigate_cost = float(Mcost*1.e9/1.e12)
-	end
-end;
-
-# ╔═╡ 4a836eee-f77d-11ea-07bf-61bc1108d06e
-function update_plot!(m)
-	update_params!(m);
-	custom_optimize!(m);
-	if panel == "temp"
-		panel_plot = Iplot_temperature(m);
-	elseif panel == "co2"
-		panel_plot = Iplot_CO2(m);
-	elseif panel == "emit"
-		panel_plot = Iplot_emissions(m);
-	elseif panel == "benefits"
-		panel_plot = Iplot_benefits(m);
-	elseif panel == "discounted_benefits"
-		panel_plot = Iplot_benefits(m, discounting=true);
-	end
-	return panel_plot
-end;
 
 # ╔═╡ a1f524c6-f77d-11ea-0ff7-b16c47a77192
 let
@@ -384,7 +395,10 @@ let
 	🔄trigger
 	⏩trigger
 	⏪trigger
-	update_plot!(m)
+	
+	enabled = MRGA{Bool}(M_enabled, R_enabled, G_enabled, false)
+	cost = MRGA{Float64}(M_cost, R_cost, G_cost, 1.0)
+	update_plot!(m; enabled=enabled, cost=cost)
 end
 
 # ╔═╡ Cell order:
@@ -420,14 +434,16 @@ end
 # ╠═5358754e-f766-11ea-27c5-b946b2495cfa
 # ╠═26d67348-f761-11ea-1acc-8539522de585
 # ╠═9efee730-f761-11ea-0454-3f86e1a91359
+# ╠═e9c8002c-f6ed-11ea-10ae-d3a6ae4b0a13
+# ╠═5a0750e0-0d12-4b4a-81e4-4605323f055a
+# ╠═8380e66b-495a-4e90-b3fe-04f2baa58a01
+# ╠═1c8521d2-f9ac-11ea-09d4-b122b4a01b4e
 # ╟─04b09746-f6ee-11ea-1cf7-67bab932507e
 # ╠═3a643e88-f6ee-11ea-2e27-f52e39bd930a
 # ╠═4a836eee-f77d-11ea-07bf-61bc1108d06e
 # ╠═fd18f7d0-f6ed-11ea-2d8a-67901fb687d9
 # ╠═97507428-f783-11ea-3d77-ef80b23a6c66
 # ╠═c93f4636-f9ab-11ea-28e2-8db61df34751
-# ╠═1c8521d2-f9ac-11ea-09d4-b122b4a01b4e
 # ╠═bc328530-f9ac-11ea-3f7a-8b8cc013c856
-# ╠═e9c8002c-f6ed-11ea-10ae-d3a6ae4b0a13
 # ╟─8179f4ec-f75d-11ea-26eb-2b9b9267f7b0
 # ╠═e59f9724-f6e8-11ea-2ce8-9714ac41b32c
