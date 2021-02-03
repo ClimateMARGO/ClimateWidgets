@@ -635,8 +635,8 @@ version = "0.12.20"
 
 [[PlutoBindServer]]
 deps = ["Base64", "HTTP", "Pkg", "Pluto", "SHA", "Sockets", "UUIDs"]
-git-tree-sha1 = "1365f0a7e027017694cb47c1dac695e0c5db74d6"
-repo-rev = "4b8097c"
+git-tree-sha1 = "d48affca73abe431f564dc1e74ea066a8036fbec"
+repo-rev = "858e24a"
 repo-url = "https://github.com/fonsp/PlutoBindServer.jl"
 uuid = "2fc8631c-6f24-4c5b-bca7-cbb509c42db4"
 version = "0.1.0"
