@@ -33,7 +33,7 @@ md"""
 """
 
 # ╔═╡ f38a0f5a-f6ee-11ea-28d6-6d93e84f8866
-md"""![](https://raw.githubusercontent.com/ClimateMARGO/ClimateMARGO.jl/master/docs/src/MARGO_schematic.png)"""
+md"""![](https://raw.githubusercontent.com/ClimateMARGO/ClimateMARGO.jl/main/docs/src/MARGO_schematic.png)"""
 
 # ╔═╡ 20a8c93e-f6ef-11ea-326d-ede483bac48b
 md"""##### Optimization Method"""
